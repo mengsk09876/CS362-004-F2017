@@ -1239,7 +1239,7 @@ int updateCoins(int player, struct gameState *state, int bonus)
 }
 void cardSmithy(struct gameState *state, int currentPlayer, int i, int handPos){
    //+3 Cards
-   for (i=0; i < 3; i++)
+   for (i=0; i < 4; i++) //change the card draw from 3 to 4
    {
       drawCard(currentPlayer, state);
    }
@@ -1255,7 +1255,7 @@ void cardAdventurer(struct gameState *state, int drawntreasure, int currentPlaye
         drawCard(currentPlayer, state);
         int cardDrawn = state->hand[currentPlayer][state->handCount[currentPlayer]-1];
             //top card of hand is most recently drawn card.
-        if (cardDrawn == copper || cardDrawn == silver || cardDrawn == gold)
+        if (cardDrawn == silver || cardDrawn == gold) //add bug: while draw copper, don't drawntreasure.
             drawntreasure++;
         else{
             temphand[z]=cardDrawn;
@@ -1273,7 +1273,7 @@ void cardAdventurer(struct gameState *state, int drawntreasure, int currentPlaye
 void cardCouncil_room(struct gameState *state, int currentPlayer){
    //+4 Cards
    int i;
-   for (i = 0; i < 4; i++){
+   for (i = 0; i < 3; i++){
       drawCard(currentPlayer, state);
    }
 
@@ -1298,9 +1298,10 @@ int cardMine(struct gameState *state, int i, int j, int currentPlayer, int choic
       return -1;
    }
 
-   if ( (getCost(state->hand[currentPlayer][choice1]) + 3) > getCost(choice2) ){
+   if ( (getCost(state->hand[currentPlayer][choice1]) + 8) > getCost(choice2) ){
       return -1;
    }
+   //change the value of get cost compare as a bug.
 
    gainCard(choice2, state, 2, currentPlayer);
 
