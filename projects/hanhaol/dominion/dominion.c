@@ -671,28 +671,9 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
            return 0;
 			
     case council_room:
-      //+4 Cards
-      for (i = 0; i < 4; i++)
-	{
-	  drawCard(currentPlayer, state);
-	}
-			
-      //+1 Buy
-      state->numBuys++;
-			
-      //Each other player draws a card
-      for (i = 0; i < state->numPlayers; i++)
-	{
-	  if ( i != currentPlayer )
-	    {
-	      drawCard(i, state);
-	    }
-	}
-			
-      //put played card in played card pile
-      discardCard(handPos, currentPlayer, state, 0);
-			
-      return 0;
+           cardCouncil_room(state, currentPlayer);    //put played card in played card pile
+           discardCard(handPos, currentPlayer, state, 0);
+           return 0;
 			
     case feast:
       //gain card with cost up to 5
@@ -751,65 +732,18 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
       return -1;
 			
     case mine:
-      j = state->hand[currentPlayer][choice1];  //store card we will trash
-
-      if (state->hand[currentPlayer][choice1] < copper || state->hand[currentPlayer][choice1] > gold)
-	{
-	  return -1;
-	}
-		
-      if (choice2 > treasure_map || choice2 < curse)
-	{
-	  return -1;
-	}
-
-      if ( (getCost(state->hand[currentPlayer][choice1]) + 3) > getCost(choice2) )
-	{
-	  return -1;
-	}
-
-      gainCard(choice2, state, 2, currentPlayer);
-
-      //discard card from hand
-      discardCard(handPos, currentPlayer, state, 0);
-
-      //discard trashed card
-      for (i = 0; i < state->handCount[currentPlayer]; i++)
-	{
-	  if (state->hand[currentPlayer][i] == j)
-	    {
-	      discardCard(i, currentPlayer, state, 0);			
-	      break;
-	    }
-	}
-			
-      return 0;
+           if (cardMine(state, i, j, currentPlayer, choice1, choice2, handPos) == -1){
+               return -1;
+           }
+           else
+               return 0;
 			
     case remodel:
-      j = state->hand[currentPlayer][choice1];  //store card we will trash
-
-      if ( (getCost(state->hand[currentPlayer][choice1]) + 2) > getCost(choice2) )
-	{
-	  return -1;
-	}
-
-      gainCard(choice2, state, 0, currentPlayer);
-
-      //discard card from hand
-      discardCard(handPos, currentPlayer, state, 0);
-
-      //discard trashed card
-      for (i = 0; i < state->handCount[currentPlayer]; i++)
-	{
-	  if (state->hand[currentPlayer][i] == j)
-	    {
-	      discardCard(i, currentPlayer, state, 0);			
-	      break;
-	    }
-	}
-
-
-      return 0;
+           if (cardRemodel(state, currentPlayer, i, j, choice1, choice2, handPos)== -1){
+               return -1;
+           }
+           else
+               return 0;
 		
     case smithy:
            cardSmithy(state, currentPlayer, i, handPos);
@@ -1335,6 +1269,76 @@ void cardAdventurer(struct gameState *state, int drawntreasure, int currentPlaye
        // discard all cards in play that have been drawn
       z=z-1;
    }
+}
+void cardCouncil_room(struct gameState *state, int currentPlayer){
+   //+4 Cards
+   int i;
+   for (i = 0; i < 4; i++){
+      drawCard(currentPlayer, state);
+   }
+
+   //+1 Buy
+   state->numBuys++;
+
+   //Each other player draws a card
+   for (i = 0; i < state->numPlayers; i++){
+      if ( i != currentPlayer ){
+          drawCard(i, state);
+      }
+   }
+}
+int cardMine(struct gameState *state, int i, int j, int currentPlayer, int choice1, int choice2, int handPos){
+   j = state->hand[currentPlayer][choice1];  //store card we will trash
+
+   if (state->hand[currentPlayer][choice1] < copper || state->hand[currentPlayer][choice1] > gold){
+      return -1;
+   }
+
+   if (choice2 > treasure_map || choice2 < curse){
+      return -1;
+   }
+
+   if ( (getCost(state->hand[currentPlayer][choice1]) + 3) > getCost(choice2) ){
+      return -1;
+   }
+
+   gainCard(choice2, state, 2, currentPlayer);
+
+   //discard card from hand
+   discardCard(handPos, currentPlayer, state, 0);
+
+   //discard trashed card
+   for (i = 0; i < state->handCount[currentPlayer]; i++){
+      if (state->hand[currentPlayer][i] == j){
+          discardCard(i, currentPlayer, state, 0);
+          break;
+      }
+   }
+   return 0;
+}
+int cardRemodel(struct gameState *state, int currentPlayer, int i, int j, int choice1, int choice2, int handPos){
+   j = state->hand[currentPlayer][choice1];  //store card we will trash
+
+   if ( (getCost(state->hand[currentPlayer][choice1]) + 2) > getCost(choice2) )
+   {
+      return -1;
+   }
+
+   gainCard(choice2, state, 0, currentPlayer);
+
+   //discard card from hand
+   discardCard(handPos, currentPlayer, state, 0);
+
+   //discard trashed card
+   for (i = 0; i < state->handCount[currentPlayer]; i++)
+   {
+      if (state->hand[currentPlayer][i] == j)
+      {
+	 discardCard(i, currentPlayer, state, 0);
+	 break;
+      }
+   }
+   return 0;
 }
 //end of dominion.c
 
